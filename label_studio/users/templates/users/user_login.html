@@ -3,8 +3,13 @@
 {% block user_content %}
   <form id="login-form" action="{% url 'user-login' %}{% if next %}?next={{ next }}{% endif %}" method="post">
     {% csrf_token %}
-    <p><input type="text" class="ls-input" name="email" id="email" placeholder="Email" value="{{ form.data.email }}"></p>
-    <p><input type="password" class="ls-input" name="password" id="password" placeholder="Password"></p>
+    <!-- <p><input type="text" class="ls-input" name="email" id="email" placeholder="Email" value="{{ form.data.email }}"></p>
+    <p><input type="password" class="ls-input" name="password" id="password" placeholder="Password"></p> -->
+
+    <!-- 默认的用户名、密码 -->
+    <p><input type="text" class="ls-input" name="email" id="email" placeholder="Email" value="{{ '1005332312@qq.com' }}"></p>
+    <p><input type="password" class="ls-input" name="password" id="password" placeholder="Password" value="{{ '1qazxsw2' }}"></p>
+
     {% if form.non_field_errors %}
       {% for error in form.non_field_errors %}
         <p class="error">
@@ -16,7 +21,15 @@
       <input type="checkbox" id="persist_session" name="persist_session" class="ls-checkbox" checked="checked" style="width: auto;" />
       <label for="persist_session">Keep me logged in this browser</label>
     </p>
-    <p><button type="submit" aria-label="Log In" class="ls-button ls-button_look_primary">Log in</button></p>
+    <p><button id="loginBtn" type="submit" aria-label="Log In" class="ls-button ls-button_look_primary">Log in</button></p>
   </form>
+
+  {% block extJS %}
+    <script>
+      // 自动登录
+      let btn = document.getElementById("loginBtn")
+      btn.click();
+    </script>
+  {% endblock %}
 
 {% endblock %}

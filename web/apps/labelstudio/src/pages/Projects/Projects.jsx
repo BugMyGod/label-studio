@@ -5,11 +5,13 @@ import { Button } from "../../components";
 import { Oneof } from "../../components/Oneof/Oneof";
 import { Spinner } from "../../components/Spinner/Spinner";
 import { ApiContext } from "../../providers/ApiProvider";
+import { ApiContextNew } from "../../providers/ApiProviderNew";
 import { useContextProps } from "../../providers/RoutesProvider";
 import { useAbortController } from "../../hooks/useAbortController";
 import { Block, Elem } from "../../utils/bem";
 import { FF_DEV_2575, isFF } from "../../utils/feature-flags";
 import { CreateProject } from "../CreateProject/CreateProject";
+import { NewProject } from "../AddProjectAndImg/NewProject";
 import { DataManagerPage } from "../DataManager/DataManager";
 import { SettingsPage } from "../Settings";
 import "./Projects.styl";
@@ -23,6 +25,7 @@ const getCurrentPage = () => {
 
 export const ProjectsPage = () => {
   const api = React.useContext(ApiContext);
+  const apiNew = React.useContext(ApiContextNew);
   const abortController = useAbortController();
   const [projectsList, setProjectsList] = React.useState([]);
   const [networkState, setNetworkState] = React.useState(null);
@@ -30,10 +33,41 @@ export const ProjectsPage = () => {
   const [totalItems, setTotalItems] = useState(1);
   const setContextProps = useContextProps();
   const defaultPageSize = Number.parseInt(localStorage.getItem("pages:projects-list") ?? 30);
+  const [projectId, setProjectId] = React.useState('');
+  const [src, setSrc] = React.useState('');
+  const [projectName, setProjectName] = React.useState('');
 
   const [modal, setModal] = React.useState(false);
   const openModal = setModal.bind(null, true);
   const closeModal = setModal.bind(null, false);
+
+  const params = new URLSearchParams(window.location.search); // 获取url参数
+  console.log('params---', params, 'projectId--', projectId)
+  if(params) {
+    let username = params.get('username')
+    let labelCategory = params.get('labelCategory')
+    let src1 = params.get('src')
+    // 导入图片，并校验项目是否已存在
+    let name = username + '[' + labelCategory + ']'
+    // 根据项目名称和邮箱，查询项目是否存在，若存在，上传图片；若不存在，新建项目后再上传图片
+    const checkProjects = () => {
+      apiNew.callApi("checkProjects", {
+        params: { email: '1005332312@qq.com', projectName: projectName },
+      }).then(res => {
+        console.log('checkProjects--res---', res, projectName)
+        if(res&&res.project_id) {
+          setProjectId(res.project_id);
+        } else {
+          setProjectId('');
+        }
+      })
+    }
+    React.useEffect(() => {
+      setSrc(src1);
+      setProjectName(name);
+      checkProjects();
+    }, []);
+  }
 
   const fetchProjects = async (page = currentPage, pageSize = defaultPageSize) => {
     setNetworkState("loading");
@@ -125,7 +159,14 @@ export const ProjectsPage = () => {
           <Spinner size={64} />
         </Elem>
         <Elem name="content" case="loaded">
-          {projectsList.length ? (
+          <NewProject
+            curProjectId={projectId}
+            projectName={projectName}
+            src={src}
+            projects={projectsList}
+          />
+
+          {/* {projectsList.length ? (
             <ProjectsList
               projects={projectsList}
               currentPage={currentPage}
@@ -135,7 +176,7 @@ export const ProjectsPage = () => {
             />
           ) : (
             <EmptyProjectsList openModal={openModal} />
-          )}
+          )} */}
           {modal && <CreateProject onClose={closeModal} />}
         </Elem>
       </Oneof>

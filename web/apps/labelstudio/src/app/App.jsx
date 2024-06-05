@@ -6,6 +6,7 @@ import { render } from "react-dom";
 import { Router } from "react-router-dom";
 import { initSentry } from "../config/Sentry";
 import { ApiProvider } from "../providers/ApiProvider";
+import { ApiProviderNew } from "../providers/ApiProviderNew";
 import { AppStoreProvider } from "../providers/AppStoreProvider";
 import { ConfigProvider } from "../providers/ConfigProvider";
 import { LibraryProvider } from "../providers/LibraryProvider";
@@ -58,6 +59,7 @@ const App = ({ content }) => {
           providers={[
             <AppStoreProvider key="app-store" />,
             <ApiProvider key="api" />,
+            <ApiProviderNew key="apinew" />,
             <ConfigProvider key="config" />,
             <LibraryProvider key="lsf" libraries={libraries} />,
             <RoutesProvider key="rotes" />,
